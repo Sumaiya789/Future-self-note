@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Future Self Notes</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1a1209;
+    --paper: #faf6ef;
+    --warm: #f0e6d0;
+    --gold: #c8922a;
+    --gold-light: #e8c97a;
+    --rust: #b05020;
+    --sage: #6a8c6a;
+    --rose: #c46070;
+    --sky: #4a7a9b;
+    --muted: #8a7a6a;
+    --border: rgba(100,80,50,0.18);
+    --shadow: rgba(80,50,20,0.10);
+    --locked: #7a5a35;
+    --unlocked: #4a7a5a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      repeating-linear-gradient(0deg, transparent, transparent 27px, rgba(140,110,60,0.07) 27px, rgba(140,110,60,0.07) 28px),
+      repeating-linear-gradient(90deg, transparent, transparent 27px, rgba(140,110,60,0.04) 27px, rgba(140,110,60,0.04) 28px);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  header {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    padding: 3rem 1rem 2rem;
+    border-bottom: 1.5px solid var(--border);
+    background: linear-gradient(to bottom, rgba(250,246,239,0.98), rgba(250,246,239,0.85));
+  }
+
+  header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.2rem, 6vw, 3.8rem);
+    color: var(--ink);
+    letter-spacing: -0.01em;
+    line-height: 1.1;
+  }
+
+  header h1 span { color: var(--gold); font-style: italic; }
+
+  header p {
+    margin-top: 0.6rem;
+    font-size: 1rem;
+    color: var(--muted);
+    font-weight: 300;
+    letter-spacing: 0.04em;
+  }
+
+  .main-layout {
+    position: relative;
+    z-index: 1;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 2rem;
+  }
+
+  @media (max-width: 780px) {
+    .main-layout { grid-template-columns: 1fr; }
+  }
+
+  /* ─── COMPOSER ─── */
+  .composer {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: 0 4px 24px var(--shadow);
+    overflow: hidden;
+  }
+
+  .composer-header {
+    padding: 1.2rem 1.5rem 0;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+
+  .tab-btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    color: var(--muted);
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .tab-btn.active { color: var(--gold); border-bottom-color: var(--gold); font-weight: 500; }
+  .tab-btn:hover { color: var(--ink); }
+
+  .composer-body { padding: 1.5rem; }
+
+  .note-title-input {
+    width: 100%;
+    border: none;
+    outline: none;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    color: var(--ink);
+    background: transparent;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.5rem;
+  }
+  .note-title-input::placeholder { color: #c8baa8; }
+
+  /* TEXT TAB */
+  #tab-text { display: block; }
+
+  .note-textarea {
+    width: 100%;
+    min-height: 200px;
+    border: none;
+    outline: none;
+    resize: vertical;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    line-height: 1.8;
+    color: var(--ink);
+    background: transparent;
+  }
+  .note-textarea::placeholder { color: #c8baa8; }
+
+  .feeling-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .feeling-chip {
+    padding: 4px 12px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: var(--warm);
+    cursor: pointer;
+    font-size: 0.82rem;
+    transition: all 0.18s;
+    user-select: none;
+  }
+  .feeling-chip:hover, .feeling-chip.selected {
+    background: var(--gold-light);
+    border-color: var(--gold);
+    transform: scale(1.05);
+  }
+
+  /* DRAW TAB */
+  #tab-draw { display: none; }
+
+  .canvas-wrap {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    background: #fff;
+    position: relative;
+  }
+
+  #drawCanvas {
+    display: block;
+    width: 100%;
+    cursor: crosshair;
+    touch-action: none;
+  }
+
+  .draw-tools {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
+
+  .color-dot {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: transform 0.15s, border-color 0.15s;
+  }
+  .color-dot:hover { transform: scale(1.2); }
+  .color-dot.active { border-color: var(--ink); transform: scale(1.15); }
+
+  .size-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 90px;
+    height: 4px;
+    background: var(--warm);
+    outline: none;
+    border-radius: 4px;
+  }
+  .size-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--gold);
+    cursor: pointer;
+  }
+
+  .tool-btn {
+    padding: 4px 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--warm);
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: background 0.15s;
+  }
+  .tool-btn:hover { background: var(--gold-light); }
+
+  /* VOICE TAB */
+  #tab-voice { display: none; }
+
+  .voice-area {
+    text-align: center;
+    padding: 2rem 1rem;
+  }
+
+  .record-btn {
+    width: 90px; height: 90px;
+    border-radius: 50%;
+    border: 3px solid var(--gold);
+    background: var(--warm);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    transition: all 0.2s;
+    position: relative;
+  }
+  .record-btn:hover { background: var(--gold-light); transform: scale(1.05); }
+  .record-btn.recording { background: #fee; border-color: var(--rose); animation: pulse-rec 1.2s infinite; }
+  .record-btn svg { width: 34px; height: 34px; }
+
+  @keyframes pulse-rec {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(196,96,112,0.35); }
+    50% { box-shadow: 0 0 0 16px rgba(196,96,112,0); }
+  }
+
+  .voice-status { font-size: 0.9rem; color: var(--muted); margin-bottom: 1rem; }
+
+  .recordings-list { margin-top: 1.2rem; text-align: left; }
+  .recording-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    background: var(--warm);
+    border-radius: 8px;
+    margin-bottom: 6px;
+  }
+  .recording-item audio { flex: 1; height: 32px; }
+  .del-rec-btn { border: none; background: none; cursor: pointer; color: var(--muted); font-size: 1rem; padding: 2px 6px; }
+  .del-rec-btn:hover { color: var(--rose); }
+
+  /* LOCK SETTINGS */
+  .lock-section {
+    margin-top: 1.5rem;
+    padding: 1.2rem;
+    background: var(--warm);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+  }
+
+  .lock-section h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    margin-bottom: 0.8rem;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .lock-row {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 0.8rem;
+  }
+
+  .lock-row label { font-size: 0.85rem; color: var(--muted); flex-shrink: 0; }
+
+  .lock-input {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 6px 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    background: #fff;
+    color: var(--ink);
+    outline: none;
+    width: 110px;
+  }
+  .lock-input:focus { border-color: var(--gold); }
+
+  .unlock-date-display {
+    font-size: 0.82rem;
+    color: var(--muted);
+    font-style: italic;
+  }
+
+  .submit-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 1.2rem;
+    flex-wrap: wrap;
+  }
+
+  .btn-primary {
+    padding: 0.65rem 1.5rem;
+    background: var(--gold);
+    color: #f9f5f5;
+    border: none;
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.12s;
+    letter-spacing: 0.01em;
+  }
+  .btn-primary:hover { background: var(--rust); transform: translateY(-1px); }
+  .btn-primary:active { transform: scale(0.97); }
+
+  .btn-secondary {
+    padding: 0.65rem 1.2rem;
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.18s;
+  }
+  .btn-secondary:hover { background: var(--warm); color: var(--ink); }
+
+  /* ─── SIDEBAR ─── */
+  .sidebar {}
+
+  .filter-bar {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 1.2rem;
+  }
+
+  .filter-btn {
+    padding: 5px 14px;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    background: transparent;
+    cursor: pointer;
+    font-size: 0.82rem;
+    color: var(--muted);
+    transition: all 0.18s;
+  }
+  .filter-btn.active, .filter-btn:hover {
+    background: var(--gold);
+    color: #eee9e9;
+    border-color: var(--gold);
+  }
+
+  .notes-list { display: flex; flex-direction: column; gap: 14px; }
+
+  .note-card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: 0 2px 12px var(--shadow);
+    overflow: hidden;
+    transition: transform 0.18s, box-shadow 0.18s;
+    position: relative;
+  }
+  .note-card:hover { transform: translateY(-2px); box-shadow: 0 6px 24px var(--shadow); }
+
+  .note-card-header {
+    padding: 1rem 1rem 0.6rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .note-card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    color: var(--ink);
+    flex: 1;
+  }
+
+  .lock-badge {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.72rem;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .lock-badge.locked { background: #fef3e2; color: var(--locked); border: 1px solid #e8c97a; }
+  .lock-badge.unlocked { background: #e8f5e9; color: var(--unlocked); border: 1px solid #a5d6a7; }
+
+  .note-card-body {
+    padding: 0 1rem 0.8rem;
+  }
+
+  .note-preview {
+    font-size: 0.88rem;
+    color: var(--muted);
+    line-height: 1.6;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+  }
+
+  .note-canvas-preview {
+    width: 100%;
+    border-radius: 8px;
+    margin-top: 6px;
+    border: 1px solid var(--border);
+  }
+
+  .voice-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.78rem;
+    color: var(--sky);
+    margin-top: 4px;
+  }
+
+  .feeling-display {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+    margin-top: 6px;
+  }
+
+  .feeling-mini {
+    font-size: 0.75rem;
+    padding: 2px 8px;
+    border-radius: 12px;
+    background: var(--warm);
+    color: var(--muted);
+    border: 1px solid var(--border);
+  }
+
+  .note-card-footer {
+    padding: 0.6rem 1rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--warm);
+  }
+
+  .note-date { font-size: 0.75rem; color: var(--muted); }
+
+  .note-actions { display: flex; gap: 6px; }
+
+  .action-btn {
+    width: 30px; height: 30px;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    background: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    transition: all 0.15s;
+    color: var(--muted);
+  }
+  .action-btn:hover { background: var(--gold-light); border-color: var(--gold); }
+  .action-btn.danger:hover { background: #fee; border-color: var(--rose); color: var(--rose); }
+
+  .locked-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(249, 169, 40, 0.92);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+    border-radius: 14px;
+    gap: 8px;
+    z-index: 5;
+  }
+
+  .locked-overlay .lock-icon { font-size: 2rem; }
+  .locked-overlay p { font-size: 0.85rem; color: var(--locked); font-style: italic; text-align: center; padding: 0 1.5rem; }
+
+  .empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+    color: var(--muted);
+    font-style: italic;
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+  }
+
+  /* ─── MODAL ─── */
+  .modal-bg {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(30,20,10,0.55);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+  .modal-bg.open { display: flex; }
+
+  .modal {
+    background: #f6f3f3;
+    border-radius: 20px;
+    max-width: 600px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(30,20,10,0.25);
+    animation: modal-in 0.25s cubic-bezier(0.34,1.56,0.64,1);
+  }
+
+  @keyframes modal-in {
+    from { opacity: 0; transform: scale(0.92) translateY(20px); }
+    to { opacity: 1; transform: none; }
+  }
+
+  .modal-header {
+    padding: 1.5rem 1.5rem 1rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  .modal-title { font-family: 'Playfair Display', serif; font-size: 1.4rem; }
+
+  .modal-close {
+    border: none; background: none; cursor: pointer;
+    font-size: 1.4rem; color: var(--muted); padding: 2px 8px;
+    transition: color 0.15s;
+  }
+  .modal-close:hover { color: var(--rose); }
+
+  .modal-body { padding: 1.5rem; }
+  .modal-body .note-full-text { line-height: 1.9; font-size: 0.98rem; white-space: pre-wrap; }
+
+  /* toast */
+  .toast {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    background: var(--ink);
+    color: #f0e6e6;
+    padding: 0.7rem 1.4rem;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s;
+    z-index: 200;
+    pointer-events: none;
+  }
+  .toast.show { opacity: 1; transform: none; }
+
+  .section-heading {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem;
+    color: var(--ink);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .count-badge {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.75rem;
+    background: var(--warm);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 2px 8px;
+    border-radius: 10px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Future <span>Self</span> Notes</h1>
+  <p>Letters to the person you're becoming &nbsp;✦&nbsp; Sealed today &nbsp;✦&nbsp; Opened tomorrow</p>
+</header>
+
+<div class="main-layout">
+
+  <!-- COMPOSER -->
+  <div>
+    <div class="composer">
+      <div class="composer-header">
+        <button class="tab-btn active" onclick="switchTab('text',this)">✍️ Write</button>
+        <button class="tab-btn" onclick="switchTab('draw',this)">🎨 Draw</button>
+        <button class="tab-btn" onclick="switchTab('voice',this)">🎙 Voice</button>
+      </div>
+      <div class="composer-body">
+        <input class="note-title-input" id="noteTitle" placeholder="Give your note a title…" />
+
+        <!-- TEXT TAB -->
+        <div id="tab-text">
+          <textarea class="note-textarea" id="noteText" placeholder="Dear future me… what do you want to remember? What are you feeling right now?"></textarea>
+          <div class="feeling-row">
+            <span style="font-size:0.78rem;color:var(--muted);margin-right:4px;align-self:center;">Mood:</span>
+            <div class="feeling-chip" onclick="toggleFeeling(this,'💭 Reflective')">💭 Reflective</div>
+            <div class="feeling-chip" onclick="toggleFeeling(this,'🔥 Motivated')">🔥 Motivated</div>
+            <div class="feeling-chip" onclick="toggleFeeling(this,'🌧 Uncertain')">🌧 Uncertain</div>
+            <div class="feeling-chip" onclick="toggleFeeling(this,'✨ Hopeful')">✨ Hopeful</div>
+            <div class="feeling-chip" onclick="toggleFeeling(this,'😌 Peaceful')">😌 Peaceful</div>
+            <div class="feeling-chip" onclick="toggleFeeling(this,'💪 Determined')">💪 Determined</div>
+            <div class="feeling-chip" onclick="toggleFeeling(this,'🤔 Confused')">🤔 Confused</div>
+            <div class="feeling-chip" onclick="toggleFeeling(this,'❤️ Grateful')">❤️ Grateful</div>
+          </div>
+        </div>
+
+        <!-- DRAW TAB -->
+        <div id="tab-draw">
+          <div class="canvas-wrap">
+            <canvas id="drawCanvas" width="640" height="340"></canvas>
+          </div>
+          <div class="draw-tools">
+            <div class="color-dot active" style="background:#1a1209" onclick="setColor('#1a1209',this)"></div>
+            <div class="color-dot" style="background:#c8922a" onclick="setColor('#c8922a',this)"></div>
+            <div class="color-dot" style="background:#b05020" onclick="setColor('#b05020',this)"></div>
+            <div class="color-dot" style="background:#6a8c6a" onclick="setColor('#6a8c6a',this)"></div>
+            <div class="color-dot" style="background:#4a7a9b" onclick="setColor('#4a7a9b',this)"></div>
+            <div class="color-dot" style="background:#c46070" onclick="setColor('#c46070',this)"></div>
+            <div class="color-dot" style="background:#8a7a6a" onclick="setColor('#8a7a6a',this)"></div>
+            <div class="color-dot" style="background:#fff;border:1px solid #ccc" onclick="setColor('#ffffff',this)"></div>
+            <span style="font-size:0.78rem;color:var(--muted);margin-left:4px;">Size:</span>
+            <input type="range" class="size-slider" id="brushSize" min="1" max="30" value="4">
+            <button class="tool-btn" onclick="setEraser()">Eraser</button>
+            <button class="tool-btn" onclick="clearCanvas()">Clear</button>
+          </div>
+          <!-- inline draw + write -->
+          <textarea class="note-textarea" id="drawNoteText" placeholder="Add words to your drawing (optional)…" style="margin-top:12px;min-height:70px;border:1px solid var(--border);border-radius:8px;padding:10px;"></textarea>
+        </div>
+
+        <!-- VOICE TAB -->
+        <div id="tab-voice">
+          <div class="voice-area">
+            <button class="record-btn" id="recordBtn" onclick="toggleRecording()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <rect x="9" y="2" width="6" height="13" rx="3" fill="var(--gold)" stroke="var(--gold)"/>
+                <path d="M5 10v2a7 7 0 0014 0v-2" stroke="var(--gold)"/>
+                <line x1="12" y1="19" x2="12" y2="23" stroke="var(--muted)"/>
+                <line x1="8" y1="23" x2="16" y2="23" stroke="var(--muted)"/>
+              </svg>
+            </button>
+            <p class="voice-status" id="voiceStatus">Tap to record your message</p>
+            <div class="recordings-list" id="recordingsList"></div>
+          </div>
+        </div>
+
+        <!-- LOCK SECTION -->
+        <div class="lock-section">
+          <h3>🔒 Time-lock this note</h3>
+          <div class="lock-row">
+            <label>Unlock after</label>
+            <input type="number" class="lock-input" id="lockDays" min="0" max="3650" value="30" placeholder="days">
+            <label>days</label>
+          </div>
+          <div class="lock-row">
+            <label>Or on date:</label>
+            <input type="date" class="lock-input" id="lockDate" style="width:150px">
+          </div>
+          <div class="unlock-date-display" id="unlockDateDisplay">📅 Will unlock: <span id="unlockDateText">in 30 days</span></div>
+        </div>
+
+        <div class="submit-row">
+          <button class="btn-primary" onclick="saveNote()">✦ Seal & Save Note</button>
+          <button class="btn-secondary" onclick="clearForm()">Discard</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SIDEBAR / NOTES LIST -->
+  <div class="sidebar">
+    <div class="section-heading">
+      Your Notes <span class="count-badge" id="notesCount">0</span>
+    </div>
+    <div class="filter-bar">
+      <button class="filter-btn active" onclick="filterNotes('all',this)">All</button>
+      <button class="filter-btn" onclick="filterNotes('locked',this)">🔒 Locked</button>
+      <button class="filter-btn" onclick="filterNotes('unlocked',this)">📖 Open</button>
+      <button class="filter-btn" onclick="filterNotes('draw',this)">🎨 Drawn</button>
+      <button class="filter-btn" onclick="filterNotes('voice',this)">🎙 Voice</button>
+    </div>
+    <div class="notes-list" id="notesList">
+      <div class="empty-state">No notes yet. Write something to your future self…</div>
+    </div>
+  </div>
+</div>
+
+<!-- VIEW MODAL -->
+<div class="modal-bg" id="modalBg" onclick="closeModalOnBg(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="modalTitle">Note title</div>
+        <div style="font-size:0.8rem;color:var(--muted);margin-top:4px;" id="modalMeta"></div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<audio id="clickSound" preload="auto">
+  <source src="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=" type="audio/wav">
+</audio>
+
+<script>
+// ─── AUDIO ───
+const AudioCtx = window.AudioContext || window.webkitAudioContext;
+let audioCtx;
+
+function playClick(type = 'soft') {
+  try {
+    if (!audioCtx) audioCtx = new AudioCtx();
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.connect(g); g.connect(audioCtx.destination);
+    if (type === 'save') {
+      o.frequency.setValueAtTime(523.25, audioCtx.currentTime);
+      o.frequency.exponentialRampToValueAtTime(783.99, audioCtx.currentTime + 0.12);
+      g.gain.setValueAtTime(0.18, audioCtx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.35);
+      o.start(); o.stop(audioCtx.currentTime + 0.35);
+    } else if (type === 'delete') {
+      o.frequency.setValueAtTime(300, audioCtx.currentTime);
+      o.frequency.exponentialRampToValueAtTime(120, audioCtx.currentTime + 0.15);
+      g.gain.setValueAtTime(0.1, audioCtx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.2);
+      o.start(); o.stop(audioCtx.currentTime + 0.2);
+    } else {
+      o.frequency.setValueAtTime(660, audioCtx.currentTime);
+      g.gain.setValueAtTime(0.06, audioCtx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.08);
+      o.start(); o.stop(audioCtx.currentTime + 0.08);
+    }
+  } catch(e){}
+}
+
+document.querySelectorAll('button,input[type="range"]').forEach(el => {
+  el.addEventListener('mousedown', () => playClick('soft'));
+});
+
+// ─── TABS ───
+let currentTab = 'text';
+function switchTab(tab, btn) {
+  playClick();
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  ['text','draw','voice'].forEach(t => document.getElementById('tab-'+t).style.display = 'none');
+  document.getElementById('tab-'+tab).style.display = 'block';
+  currentTab = tab;
+  if (tab === 'draw') initCanvas();
+}
+
+// ─── FEELINGS ───
+const selectedFeelings = new Set();
+function toggleFeeling(el, feeling) {
+  playClick();
+  el.classList.toggle('selected');
+  if (selectedFeelings.has(feeling)) selectedFeelings.delete(feeling);
+  else selectedFeelings.add(feeling);
+}
+
+// ─── CANVAS DRAW ───
+let canvas, ctx, drawing = false, currentColor = '#1a1209', currentSize = 4, isEraser = false;
+let canvasInitialized = false;
+
+function initCanvas() {
+  if (canvasInitialized) return;
+  canvas = document.getElementById('drawCanvas');
+  ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#faf6ef';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+
+  const getPos = e => {
+    const r = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / r.width;
+    const scaleY = canvas.height / r.height;
+    if (e.touches) return {
+      x: (e.touches[0].clientX - r.left) * scaleX,
+      y: (e.touches[0].clientY - r.top) * scaleY
+    };
+    return { x: (e.clientX - r.left) * scaleX, y: (e.clientY - r.top) * scaleY };
+  };
+
+  const startDraw = e => { e.preventDefault(); drawing = true; const p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); };
+  const draw = e => {
+    if (!drawing) return; e.preventDefault();
+    const p = getPos(e);
+    ctx.strokeStyle = isEraser ? '#faf6ef' : currentColor;
+    ctx.lineWidth = isEraser ? currentSize * 3 : currentSize;
+    ctx.lineTo(p.x, p.y); ctx.stroke(); ctx.beginPath(); ctx.moveTo(p.x, p.y);
+  };
+  const endDraw = () => { drawing = false; };
+
+  canvas.addEventListener('mousedown', startDraw);
+  canvas.addEventListener('mousemove', draw);
+  canvas.addEventListener('mouseup', endDraw);
+  canvas.addEventListener('mouseleave', endDraw);
+  canvas.addEventListener('touchstart', startDraw, {passive:false});
+  canvas.addEventListener('touchmove', draw, {passive:false});
+  canvas.addEventListener('touchend', endDraw);
+  canvasInitialized = true;
+}
+
+function setColor(c, el) {
+  playClick();
+  currentColor = c; isEraser = false;
+  document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function setEraser() { playClick(); isEraser = true; }
+
+function clearCanvas() {
+  playClick('delete');
+  if (!ctx) return;
+  ctx.fillStyle = '#faf6ef';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+}
+
+document.getElementById('brushSize').addEventListener('input', e => { currentSize = parseInt(e.target.value); });
+
+// ─── LOCK DATE ───
+function updateUnlockDisplay() {
+  const days = parseInt(document.getElementById('lockDays').value) || 0;
+  const dateVal = document.getElementById('lockDate').value;
+  let display = '';
+  if (dateVal) {
+    display = new Date(dateVal).toLocaleDateString('en-US', {month:'long',day:'numeric',year:'numeric'});
+  } else {
+    const d = new Date();
+    d.setDate(d.getDate() + days);
+    display = days === 0 ? 'immediately (no lock)' : d.toLocaleDateString('en-US', {month:'long',day:'numeric',year:'numeric'});
+  }
+  document.getElementById('unlockDateText').textContent = display;
+}
+
+document.getElementById('lockDays').addEventListener('input', () => { document.getElementById('lockDate').value = ''; updateUnlockDisplay(); });
+document.getElementById('lockDate').addEventListener('input', () => { document.getElementById('lockDays').value = ''; updateUnlockDisplay(); });
+updateUnlockDisplay();
+
+// ─── VOICE RECORDING ───
+let mediaRecorder = null, audioChunks = [], isRecording = false;
+const recordings = [];
+
+async function toggleRecording() {
+  playClick();
+  if (!isRecording) {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({audio:true});
+      mediaRecorder = new MediaRecorder(stream);
+      audioChunks = [];
+      mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+      mediaRecorder.onstop = () => {
+        const blob = new Blob(audioChunks, {type:'audio/webm'});
+        const url = URL.createObjectURL(blob);
+        recordings.push({url, duration: recordingTime});
+        renderRecordings();
+        stream.getTracks().forEach(t => t.stop());
+      };
+      mediaRecorder.start();
+      isRecording = true;
+      document.getElementById('recordBtn').classList.add('recording');
+      startTimer();
+      document.getElementById('voiceStatus').textContent = '● Recording…';
+    } catch(e) {
+      showToast('Microphone access denied');
+    }
+  } else {
+    mediaRecorder.stop();
+    isRecording = false;
+    stopTimer();
+    document.getElementById('recordBtn').classList.remove('recording');
+    document.getElementById('voiceStatus').textContent = 'Tap to record another message';
+  }
+}
+
+let recordingTime = 0, timerInterval;
+function startTimer() { recordingTime = 0; timerInterval = setInterval(() => { recordingTime++; document.getElementById('voiceStatus').textContent = `● Recording… ${recordingTime}s`; }, 1000); }
+function stopTimer() { clearInterval(timerInterval); }
+
+function renderRecordings() {
+  const list = document.getElementById('recordingsList');
+  list.innerHTML = recordings.map((r, i) => `
+    <div class="recording-item">
+      <audio controls src="${r.url}"></audio>
+      <button class="del-rec-btn" onclick="deleteRecording(${i})">✕</button>
+    </div>
+  `).join('');
+}
+
+function deleteRecording(i) { playClick('delete'); recordings.splice(i,1); renderRecordings(); }
+
+// ─── NOTES STORAGE ───
+let notes = JSON.parse(localStorage.getItem('futureNotes') || '[]');
+let currentFilter = 'all';
+
+function saveNote() {
+  playClick('save');
+  const title = document.getElementById('noteTitle').value.trim();
+  const text = document.getElementById('noteText').value.trim();
+  const drawText = document.getElementById('drawNoteText').value.trim();
+
+  if (!title && !text && currentTab !== 'draw' && recordings.length === 0) {
+    showToast('Please write something first ✦'); return;
+  }
+
+  const days = parseInt(document.getElementById('lockDays').value) || 0;
+  const dateInput = document.getElementById('lockDate').value;
+  let unlockDate;
+  if (dateInput) {
+    unlockDate = new Date(dateInput).getTime();
+  } else {
+    const d = new Date();
+    d.setDate(d.getDate() + days);
+    unlockDate = d.getTime();
+  }
+
+  let drawingData = null;
+  if (currentTab === 'draw' && canvasInitialized) {
+    drawingData = canvas.toDataURL();
+  }
+
+  const note = {
+    id: Date.now(),
+    title: title || 'Untitled',
+    text: currentTab === 'draw' ? drawText : text,
+    feelings: [...selectedFeelings],
+    drawingData,
+    voiceRecordings: currentTab === 'voice' ? recordings.map(r => r.url) : [],
+    type: currentTab,
+    createdAt: Date.now(),
+    unlockDate
+  };
+
+  notes.unshift(note);
+  saveToStorage();
+  renderNotes();
+  clearForm();
+  showToast('✦ Note sealed and saved!');
+}
+
+function saveToStorage() {
+  try {
+    const storable = notes.map(n => ({...n, voiceRecordings:[]}));
+    localStorage.setItem('futureNotes', JSON.stringify(storable));
+  } catch(e){}
+}
+
+function clearForm() {
+  document.getElementById('noteTitle').value = '';
+  document.getElementById('noteText').value = '';
+  document.getElementById('drawNoteText').value = '';
+  document.getElementById('lockDays').value = 30;
+  document.getElementById('lockDate').value = '';
+  selectedFeelings.clear();
+  document.querySelectorAll('.feeling-chip').forEach(c => c.classList.remove('selected'));
+  if (canvasInitialized) clearCanvas();
+  recordings.length = 0;
+  renderRecordings();
+  document.getElementById('voiceStatus').textContent = 'Tap to record your message';
+  updateUnlockDisplay();
+}
+
+// ─── RENDER NOTES ───
+function isLocked(note) {
+  return Date.now() < note.unlockDate;
+}
+
+function filterNotes(f, btn) {
+  playClick();
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderNotes();
+}
+
+function renderNotes() {
+  const list = document.getElementById('notesList');
+  document.getElementById('notesCount').textContent = notes.length;
+
+  let filtered = notes.filter(n => {
+    if (currentFilter === 'locked') return isLocked(n);
+    if (currentFilter === 'unlocked') return !isLocked(n);
+    if (currentFilter === 'draw') return n.drawingData;
+    if (currentFilter === 'voice') return n.voiceRecordings && n.voiceRecordings.length > 0;
+    return true;
+  });
+
+  if (filtered.length === 0) {
+    list.innerHTML = '<div class="empty-state">No notes match this filter…</div>';
+    return;
+  }
+
+  list.innerHTML = filtered.map(n => {
+    const locked = isLocked(n);
+    const unlockDateStr = new Date(n.unlockDate).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+    const createdStr = new Date(n.createdAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+    const feelings = (n.feelings||[]).map(f => `<span class="feeling-mini">${f}</span>`).join('');
+    const hasVoice = n.voiceRecordings && n.voiceRecordings.length > 0;
+
+    return `
+    <div class="note-card" id="card-${n.id}">
+      <div class="note-card-header">
+        <div class="note-card-title">${n.title}</div>
+        <span class="lock-badge ${locked?'locked':'unlocked'}">
+          ${locked ? '🔒 Locked' : '📖 Open'}
+        </span>
+      </div>
+      <div class="note-card-body">
+        ${n.drawingData ? `<img class="note-canvas-preview" src="${n.drawingData}" alt="Drawing" />` : ''}
+        ${n.text ? `<p class="note-preview">${n.text}</p>` : ''}
+        ${hasVoice ? `<div class="voice-badge">🎙 ${n.voiceRecordings.length} voice memo${n.voiceRecordings.length>1?'s':''}</div>` : ''}
+        ${feelings ? `<div class="feeling-display">${feelings}</div>` : ''}
+      </div>
+      <div class="note-card-footer">
+        <div class="note-date">
+          Written ${createdStr}<br>
+          <span style="color:${locked?'var(--locked)':'var(--unlocked)'}">${locked ? 'Unlocks '+unlockDateStr : 'Unlocked ✓'}</span>
+        </div>
+        <div class="note-actions">
+          <button class="action-btn" onclick="viewNote(${n.id})" title="View">👁</button>
+          <button class="action-btn danger" onclick="deleteNote(${n.id})" title="Delete">🗑</button>
+        </div>
+      </div>
+      ${locked ? `
+      <div class="locked-overlay">
+        <div class="lock-icon">🔒</div>
+        <p>Sealed until ${unlockDateStr}</p>
+      </div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function deleteNote(id) {
+  playClick('delete');
+  if (!confirm('Delete this note permanently?')) return;
+  notes = notes.filter(n => n.id !== id);
+  saveToStorage();
+  renderNotes();
+  showToast('Note deleted');
+}
+
+function viewNote(id) {
+  playClick();
+  const note = notes.find(n => n.id === id);
+  if (!note) return;
+  if (isLocked(note)) {
+    showToast('🔒 This note is still locked! Come back later.');
+    return;
+  }
+  document.getElementById('modalTitle').textContent = note.title;
+  document.getElementById('modalMeta').textContent =
+    `Written on ${new Date(note.createdAt).toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}`;
+
+  let body = '';
+  if (note.drawingData) body += `<img src="${note.drawingData}" style="width:100%;border-radius:10px;margin-bottom:1rem;border:1px solid var(--border)" />`;
+  if (note.text) body += `<div class="note-full-text">${note.text}</div>`;
+  if (note.feelings && note.feelings.length > 0) {
+    body += `<div class="feeling-display" style="margin-top:1rem">${note.feelings.map(f=>`<span class="feeling-mini">${f}</span>`).join('')}</div>`;
+  }
+  if (!body) body = `<p style="color:var(--muted);font-style:italic">Voice note only</p>`;
+
+  document.getElementById('modalBody').innerHTML = body;
+  document.getElementById('modalBg').classList.add('open');
+}
+
+function closeModal() { document.getElementById('modalBg').classList.remove('open'); }
+function closeModalOnBg(e) { if (e.target.id === 'modalBg') closeModal(); }
+
+// ─── TOAST ───
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ─── INIT ───
+renderNotes();
+</script>
+</body>
+</html>
